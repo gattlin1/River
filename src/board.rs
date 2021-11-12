@@ -1,21 +1,7 @@
 use crate::Bitboard;
+use crate::Pieces;
 use std::{collections::HashMap, ops::BitOr};
 
-#[derive(PartialEq, Eq, Hash)]
-pub enum Pieces {
-    WhiteKing,
-    WhiteQueen,
-    WhiteRook,
-    WhiteBishop,
-    WhiteKnight,
-    WhitePawn,
-    BlackKing,
-    BlackQueen,
-    BlackRook,
-    BlackBishop,
-    BlackKnight,
-    BlackPawn,
-}
 pub struct Board {
     bitboards: HashMap<Pieces, Bitboard>,
 }
