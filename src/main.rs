@@ -4,6 +4,6 @@ use bitboard::*;
 use board::*;
 
 fn main() {
-    let mut board = Board::new();
-    board.get_board_state();
+    let board = Board::new();
+    println!("Initial Board State\n{}", board.get_board_state());
 }
