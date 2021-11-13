@@ -1,5 +1,7 @@
 use std::fmt;
-use std::ops::{BitAnd, BitOr};
+use std::ops::{BitAnd, BitOr, BitOrAssign};
+
+use crate::enums::{File, Rank};
 
 #[derive(Debug, Copy, Clone)]
 pub struct Bitboard(pub u64);
@@ -7,6 +9,14 @@ pub struct Bitboard(pub u64);
 impl Bitboard {
     pub fn new(bb: u64) -> Self {
         Self(bb)
+    }
+
+    pub fn from_square(file: File, rank: Rank) -> Self {
+        Self(Self::square_to_bit(file, rank))
+    }
+
+    fn square_to_bit(file: File, rank: Rank) -> u64 {
+        u64::pow(2, (file as u8 - 1).into()) + u64::pow(2, ((rank as u8 - 1) * 8).into())
     }
 }
 
@@ -40,6 +50,12 @@ impl BitOr for Bitboard {
 
     fn bitor(self, other: Bitboard) -> Bitboard {
         Bitboard(self.0 | other.0)
+    }
+}
+
+impl BitOrAssign for Bitboard {
+    fn bitor_assign(&mut self, other: Bitboard) {
+        self.0 |= other.0
     }
 }
 

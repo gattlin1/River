@@ -74,7 +74,7 @@ impl Board {
         let mut result: Bitboard = Bitboard::new(0);
 
         for (_, board) in self.bitboards {
-            result = board.bitor(result);
+            result |= board;
         }
 
         return result;
