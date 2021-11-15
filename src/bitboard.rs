@@ -1,22 +1,31 @@
 use std::fmt;
-use std::ops::{BitAnd, BitOr, BitOrAssign};
+use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign};
 
-use crate::enums::{File, Rank};
+use crate::enums::Squares;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Bitboard(pub u64);
 
 impl Bitboard {
-    pub fn new(bb: u64) -> Self {
-        Self(bb)
+    pub fn new(board: u64) -> Self {
+        Self(board)
     }
 
-    pub fn from_square(file: File, rank: Rank) -> Self {
-        Self(Self::square_to_bit(file, rank))
+    pub fn from_square(square: Squares) -> Self {
+        Self(Self::square_to_bit(square))
     }
 
-    fn square_to_bit(file: File, rank: Rank) -> u64 {
-        u64::pow(2, (file as u8 - 1).into()) + u64::pow(2, ((rank as u8 - 1) * 8).into())
+    pub fn from_squares(squares: Vec<Squares>) -> Self {
+        let mut board: u64 = 0;
+        for square in squares {
+            board += Self::square_to_bit(square);
+        }
+
+        Self(board)
+    }
+
+    fn square_to_bit(square: Squares) -> u64 {
+        u64::pow(2, (square as u8).into())
     }
 }
 
@@ -28,9 +37,9 @@ impl fmt::Display for Bitboard {
         while decimal > 0 {
             for _ in 0..8 {
                 if decimal % 2 == 0 {
-                    bits.push('0');
+                    bits.push('-');
                 } else {
-                    bits.push('1');
+                    bits.push('X');
                 }
                 decimal /= 2;
             }
@@ -38,7 +47,7 @@ impl fmt::Display for Bitboard {
         }
 
         while bits.len() < 64 {
-            bits.push_str("00000000\n");
+            bits.push_str("--------\n");
         }
 
         write!(f, "{}", bits)
@@ -64,5 +73,11 @@ impl BitAnd for Bitboard {
 
     fn bitand(self, other: Bitboard) -> Bitboard {
         Bitboard(self.0 & other.0)
+    }
+}
+
+impl BitAndAssign for Bitboard {
+    fn bitand_assign(&mut self, other: Bitboard) {
+        self.0 &= other.0
     }
 }

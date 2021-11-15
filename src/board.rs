@@ -1,6 +1,7 @@
+use crate::enums::Squares;
 use crate::Bitboard;
 use crate::Pieces;
-use std::{collections::HashMap, ops::BitOr};
+use std::collections::HashMap;
 
 pub struct Board {
     bitboards: HashMap<Pieces, Bitboard>,
@@ -8,62 +9,48 @@ pub struct Board {
 
 impl Board {
     pub fn new() -> Self {
+        let assigned_piece_squares = vec![
+            (Pieces::WhiteKing, vec![Squares::e1]),
+            (Pieces::WhiteQueen, vec![Squares::d1]),
+            (Pieces::WhiteRook, vec![Squares::a1, Squares::h1]),
+            (Pieces::WhiteBishop, vec![Squares::c1, Squares::f1]),
+            (Pieces::WhiteKnight, vec![Squares::b1, Squares::g1]),
+            (
+                Pieces::WhitePawn,
+                vec![
+                    Squares::a2,
+                    Squares::b2,
+                    Squares::c2,
+                    Squares::d2,
+                    Squares::e2,
+                    Squares::f2,
+                    Squares::g2,
+                    Squares::h2,
+                ],
+            ),
+            (Pieces::BlackKing, vec![Squares::e8]),
+            (Pieces::BlackQueen, vec![Squares::d8]),
+            (Pieces::BlackRook, vec![Squares::a8, Squares::h8]),
+            (Pieces::BlackBishop, vec![Squares::c8, Squares::f8]),
+            (Pieces::BlackKnight, vec![Squares::b8, Squares::g8]),
+            (
+                Pieces::BlackPawn,
+                vec![
+                    Squares::a7,
+                    Squares::b7,
+                    Squares::c7,
+                    Squares::d7,
+                    Squares::e7,
+                    Squares::f7,
+                    Squares::g7,
+                    Squares::h7,
+                ],
+            ),
+        ];
         let mut initial_board_state: HashMap<Pieces, Bitboard> = HashMap::new();
-        initial_board_state.insert(Pieces::WhiteKing, Bitboard::new(u64::pow(2, 4)));
-        initial_board_state.insert(Pieces::WhiteQueen, Bitboard::new(u64::pow(2, 3)));
-        initial_board_state.insert(
-            Pieces::WhiteRook,
-            Bitboard::new(u64::pow(2, 0) + u64::pow(2, 7)),
-        );
-        initial_board_state.insert(
-            Pieces::WhiteBishop,
-            Bitboard::new(u64::pow(2, 1) + u64::pow(2, 6)),
-        );
-        initial_board_state.insert(
-            Pieces::WhiteKnight,
-            Bitboard::new(u64::pow(2, 2) + u64::pow(2, 5)),
-        );
-        initial_board_state.insert(
-            Pieces::WhitePawn,
-            Bitboard::new(
-                u64::pow(2, 8)
-                    + u64::pow(2, 9)
-                    + u64::pow(2, 10)
-                    + u64::pow(2, 11)
-                    + u64::pow(2, 12)
-                    + u64::pow(2, 13)
-                    + u64::pow(2, 14)
-                    + u64::pow(2, 15),
-            ),
-        );
-
-        initial_board_state.insert(Pieces::BlackKing, Bitboard::new(u64::pow(2, 60)));
-        initial_board_state.insert(Pieces::BlackQueen, Bitboard::new(u64::pow(2, 59)));
-        initial_board_state.insert(
-            Pieces::BlackRook,
-            Bitboard::new(u64::pow(2, 56) + u64::pow(2, 63)),
-        );
-        initial_board_state.insert(
-            Pieces::BlackBishop,
-            Bitboard::new(u64::pow(2, 58) + u64::pow(2, 61)),
-        );
-        initial_board_state.insert(
-            Pieces::BlackKnight,
-            Bitboard::new(u64::pow(2, 57) + u64::pow(2, 62)),
-        );
-        initial_board_state.insert(
-            Pieces::BlackPawn,
-            Bitboard::new(
-                u64::pow(2, 48)
-                    + u64::pow(2, 49)
-                    + u64::pow(2, 50)
-                    + u64::pow(2, 51)
-                    + u64::pow(2, 52)
-                    + u64::pow(2, 53)
-                    + u64::pow(2, 54)
-                    + u64::pow(2, 55),
-            ),
-        );
+        for (piece, squares) in assigned_piece_squares {
+            initial_board_state.insert(piece, Bitboard::from_squares(squares));
+        }
 
         Self {
             bitboards: initial_board_state,
