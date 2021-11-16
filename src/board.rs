@@ -1,12 +1,12 @@
-use crate::enums::{Piece, Square};
-use crate::Bitboard;
+use crate::enums::{Castling, Color, Piece, Square};
+use crate::{bitboard, Bitboard};
 use num_traits::FromPrimitive;
 use std::collections::HashMap;
 
 pub struct Board {
     bitboards: HashMap<Piece, Bitboard>,
-    active_color: String,
-    castling_rights: String,
+    active_color: Color,
+    castling_rights: HashMap<Castling, bool>,
     en_passant: String, // TODO: make a Square
     halfmove_clock: i32,
     fullmove_number: i32,
@@ -19,19 +19,31 @@ impl Board {
     }
 
     pub fn from_fen(fen: String) -> Self {
-        let mut piece_list: HashMap<Piece, Vec<Square>> = HashMap::new();
-        let mut bitboards: HashMap<Piece, Bitboard> = HashMap::new();
-
         let fen_pieces: Vec<&str> = fen.split_whitespace().collect();
-        let ranks: Vec<&str> = fen_pieces[0].split("/").collect();
-        let active_color = fen_pieces[1].to_string();
-        let castling_rights = fen_pieces[2].to_string();
+
+        let bitboards = Self::fen_get_bitboards(fen_pieces[0].split("/").collect());
+        let active_color = Self::fen_get_active_color(fen_pieces[1]).unwrap();
+        let castling_rights = Self::fen_get_castling_rights(fen_pieces[2]);
         let en_passant = fen_pieces[3].to_string();
         let halfmove_clock: i32 = fen_pieces[4].parse().unwrap();
         let fullmove_number: i32 = fen_pieces[5].parse().unwrap();
 
+        Self {
+            bitboards,
+            active_color,
+            castling_rights,
+            en_passant,
+            halfmove_clock,
+            fullmove_number,
+        }
+    }
+
+    fn fen_get_bitboards(fen_pieces: Vec<&str>) -> HashMap<Piece, Bitboard> {
+        let mut bitboards: HashMap<Piece, Bitboard> = HashMap::new();
+        let mut piece_list: HashMap<Piece, Vec<Square>> = HashMap::new();
+
         let mut square: i8 = 63;
-        for pieces in ranks {
+        for pieces in fen_pieces {
             for piece in pieces.chars() {
                 match piece {
                     'k' => Self::add_to_piece_list(&mut piece_list, Piece::BlackKing, square),
@@ -60,19 +72,48 @@ impl Board {
             bitboards.insert(piece, Bitboard::from_squares(squares));
         }
 
-        Self {
-            bitboards,
-            active_color,
-            castling_rights,
-            en_passant,
-            halfmove_clock,
-            fullmove_number,
-        }
+        bitboards
     }
 
     fn add_to_piece_list(piece_list: &mut HashMap<Piece, Vec<Square>>, piece: Piece, square: i8) {
         let piece_squares = piece_list.entry(piece).or_insert(vec![]);
         piece_squares.push(FromPrimitive::from_i8(square).unwrap());
+    }
+
+    fn fen_get_castling_rights(fen_castling: &str) -> HashMap<Castling, bool> {
+        let mut castling_rights: HashMap<Castling, bool> = HashMap::new();
+        castling_rights.insert(Castling::WhiteKingSide, false);
+        castling_rights.insert(Castling::WhiteQueenSide, false);
+        castling_rights.insert(Castling::BlackKingSide, false);
+        castling_rights.insert(Castling::BlackQueenSide, false);
+
+        for individual_castling in fen_castling.split("") {
+            match individual_castling {
+                "K" => {
+                    castling_rights.insert(Castling::WhiteKingSide, true);
+                }
+                "Q" => {
+                    castling_rights.insert(Castling::WhiteQueenSide, true);
+                }
+                "k" => {
+                    castling_rights.insert(Castling::BlackKingSide, true);
+                }
+                "q" => {
+                    castling_rights.insert(Castling::BlackQueenSide, true);
+                }
+                _ => {}
+            }
+        }
+
+        castling_rights
+    }
+
+    fn fen_get_active_color(fen_color: &str) -> Result<Color, &str> {
+        match fen_color {
+            "w" => Ok(Color::White),
+            "b" => Ok(Color::Black),
+            _ => Err("Invalid color was supplied"),
+        }
     }
 
     pub fn get_board_state(self) -> Bitboard {

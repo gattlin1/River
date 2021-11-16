@@ -14,12 +14,25 @@ pub enum Piece {
     BlackBishop,
     BlackKnight,
     BlackPawn,
-    None,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+pub enum Color {
+    White,
+    Black,
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
+pub enum Castling {
+    WhiteKingSide,
+    WhiteQueenSide,
+    BlackKingSide,
+    BlackQueenSide,
 }
 
 #[rustfmt::skip]
 #[allow(non_camel_case_types)]
-#[derive(Copy, Clone, Debug, FromPrimitive)]
+#[derive(FromPrimitive)]
 #[repr(u8)]
 pub enum Square {
     a1 = 0, b1, c1, d1, e1, f1, g1, h1,
