@@ -5,72 +5,32 @@ use std::collections::HashMap;
 
 pub struct Board {
     bitboards: HashMap<Piece, Bitboard>,
+    active_color: String,
+    castling_rights: String,
+    en_passant: String, // TODO: make a Square
+    halfmove_clock: i32,
+    fullmove_number: i32,
 }
 
 impl Board {
     pub fn new() -> Self {
-        let assigned_piece_squares = vec![
-            (Piece::WhiteKing, vec![Square::e1]),
-            (Piece::WhiteQueen, vec![Square::d1]),
-            (Piece::WhiteRook, vec![Square::a1, Square::h1]),
-            (Piece::WhiteBishop, vec![Square::c1, Square::f1]),
-            (Piece::WhiteKnight, vec![Square::b1, Square::g1]),
-            (
-                Piece::WhitePawn,
-                vec![
-                    Square::a2,
-                    Square::b2,
-                    Square::c2,
-                    Square::d2,
-                    Square::e2,
-                    Square::f2,
-                    Square::g2,
-                    Square::h2,
-                ],
-            ),
-            (Piece::BlackKing, vec![Square::e8]),
-            (Piece::BlackQueen, vec![Square::d8]),
-            (Piece::BlackRook, vec![Square::a8, Square::h8]),
-            (Piece::BlackBishop, vec![Square::c8, Square::f8]),
-            (Piece::BlackKnight, vec![Square::b8, Square::g8]),
-            (
-                Piece::BlackPawn,
-                vec![
-                    Square::a7,
-                    Square::b7,
-                    Square::c7,
-                    Square::d7,
-                    Square::e7,
-                    Square::f7,
-                    Square::g7,
-                    Square::h7,
-                ],
-            ),
-        ];
-        let mut initial_board_state: HashMap<Piece, Bitboard> = HashMap::new();
-        for (piece, squares) in assigned_piece_squares {
-            initial_board_state.insert(piece, Bitboard::from_squares(squares));
-        }
-
-        Self {
-            bitboards: initial_board_state,
-        }
+        let starting_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".into();
+        Self::from_fen(starting_pos)
     }
 
     pub fn from_fen(fen: String) -> Self {
         let mut piece_list: HashMap<Piece, Vec<Square>> = HashMap::new();
         let mut bitboards: HashMap<Piece, Bitboard> = HashMap::new();
+
         let fen_pieces: Vec<&str> = fen.split_whitespace().collect();
         let ranks: Vec<&str> = fen_pieces[0].split("/").collect();
-        let active_color = fen_pieces[1];
-        let castling_rights = fen_pieces[2];
-        let en_passant = fen_pieces[3];
+        let active_color = fen_pieces[1].to_string();
+        let castling_rights = fen_pieces[2].to_string();
+        let en_passant = fen_pieces[3].to_string();
         let halfmove_clock: i32 = fen_pieces[4].parse().unwrap();
         let fullmove_number: i32 = fen_pieces[5].parse().unwrap();
 
-        println!("{:?}", fen_pieces);
-
-        let mut square: u8 = 63;
+        let mut square: i8 = 63;
         for pieces in ranks {
             for piece in pieces.chars() {
                 match piece {
@@ -86,24 +46,33 @@ impl Board {
                     'B' => Self::add_to_piece_list(&mut piece_list, Piece::WhiteBishop, square),
                     'N' => Self::add_to_piece_list(&mut piece_list, Piece::WhiteKnight, square),
                     'P' => Self::add_to_piece_list(&mut piece_list, Piece::WhitePawn, square),
+                    '1'..='8' => {
+                        let empty_squares = piece.to_digit(10).unwrap() as i8;
+                        square -= empty_squares - 1; // -1 because we subtract after the match statement
+                    }
                     _ => {}
                 };
                 square -= 1;
             }
         }
 
-        println!("{:#?}", piece_list);
-
         for (piece, squares) in piece_list {
             bitboards.insert(piece, Bitboard::from_squares(squares));
         }
 
-        Self { bitboards }
+        Self {
+            bitboards,
+            active_color,
+            castling_rights,
+            en_passant,
+            halfmove_clock,
+            fullmove_number,
+        }
     }
 
-    fn add_to_piece_list(piece_list: &mut HashMap<Piece, Vec<Square>>, piece: Piece, square: u8) {
+    fn add_to_piece_list(piece_list: &mut HashMap<Piece, Vec<Square>>, piece: Piece, square: i8) {
         let piece_squares = piece_list.entry(piece).or_insert(vec![]);
-        piece_squares.push(FromPrimitive::from_u8(square).unwrap());
+        piece_squares.push(FromPrimitive::from_i8(square).unwrap());
     }
 
     pub fn get_board_state(self) -> Bitboard {
