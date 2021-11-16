@@ -1,15 +1,16 @@
 use crate::enums::{Castling, Color, Piece, Square};
-use crate::{bitboard, Bitboard};
+use crate::Bitboard;
 use num_traits::FromPrimitive;
 use std::collections::HashMap;
+use std::str::FromStr;
 
 pub struct Board {
-    bitboards: HashMap<Piece, Bitboard>,
-    active_color: Color,
-    castling_rights: HashMap<Castling, bool>,
-    en_passant: String, // TODO: make a Square
-    halfmove_clock: i32,
-    fullmove_number: i32,
+    pub bitboards: HashMap<Piece, Bitboard>,
+    pub active_color: Color,
+    pub castling_rights: HashMap<Castling, bool>,
+    pub en_passant: Square,
+    pub halfmove_clock: i32,
+    pub fullmove_number: i32,
 }
 
 impl Board {
@@ -24,7 +25,7 @@ impl Board {
         let bitboards = Self::fen_get_bitboards(fen_pieces[0].split("/").collect());
         let active_color = Self::fen_get_active_color(fen_pieces[1]).unwrap();
         let castling_rights = Self::fen_get_castling_rights(fen_pieces[2]);
-        let en_passant = fen_pieces[3].to_string();
+        let en_passant = Square::from_str(fen_pieces[3]).unwrap();
         let halfmove_clock: i32 = fen_pieces[4].parse().unwrap();
         let fullmove_number: i32 = fen_pieces[5].parse().unwrap();
 
