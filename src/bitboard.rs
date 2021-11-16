@@ -1,7 +1,7 @@
 use std::fmt;
 use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign};
 
-use crate::enums::Squares;
+use crate::enums::Square;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Bitboard(pub u64);
@@ -11,11 +11,11 @@ impl Bitboard {
         Self(board)
     }
 
-    pub fn from_square(square: Squares) -> Self {
+    pub fn from_square(square: Square) -> Self {
         Self(Self::square_to_bit(square))
     }
 
-    pub fn from_squares(squares: Vec<Squares>) -> Self {
+    pub fn from_squares(squares: Vec<Square>) -> Self {
         let mut board: u64 = 0;
         for square in squares {
             board += Self::square_to_bit(square);
@@ -24,7 +24,7 @@ impl Bitboard {
         Self(board)
     }
 
-    fn square_to_bit(square: Squares) -> u64 {
+    fn square_to_bit(square: Square) -> u64 {
         u64::pow(2, (square as u8).into())
     }
 }
