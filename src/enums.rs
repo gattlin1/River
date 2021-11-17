@@ -17,6 +17,16 @@ pub enum Piece {
     BlackPawn,
 }
 
+#[derive(PartialEq, Eq, Hash, Debug)]
+pub enum Type {
+    King,
+    Queen,
+    Rook,
+    Bishop,
+    Knight,
+    Pawn,
+}
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash)]
 pub enum Color {
     White,

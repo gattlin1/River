@@ -1,8 +1,10 @@
 mod bitboard;
 mod board;
 mod enums;
+mod piece;
 use bitboard::*;
 use board::*;
+use piece::*;
 
 fn main() {
     let board =
