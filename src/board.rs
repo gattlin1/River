@@ -126,20 +126,4 @@ impl Board {
 
         return result;
     }
-
-    pub fn gen_moves(self) -> HashMap<Piece, Bitboard> {
-        let mut moves: HashMap<Piece, Bitboard> = HashMap::new();
-
-        for (piece, bitboard) in self.bitboards.iter() {
-            let piece_moves = match piece {
-                _ => Bitboard::new(0),
-            };
-        }
-
-        moves
-    }
-
-    pub fn gen_king_moves(bitboard: &Bitboard) -> Bitboard {
-        Bitboard::new(1)
-    }
 }

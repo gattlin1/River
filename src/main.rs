@@ -1,9 +1,11 @@
 mod bitboard;
 mod board;
 mod enums;
+mod movegen;
 mod piece;
 use bitboard::*;
 use board::*;
+use movegen::*;
 use piece::*;
 
 fn main() {
