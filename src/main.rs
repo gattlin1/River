@@ -1,12 +1,5 @@
-mod bitboard;
-mod board;
-mod enums;
-mod movegen;
-mod piece;
-use bitboard::*;
-use board::*;
-use movegen::*;
-use piece::*;
+pub mod engine;
+use crate::engine::*;
 
 fn main() {
     let board =

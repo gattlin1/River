@@ -1,14 +1,17 @@
-use crate::enums::{Castling, Color, Piece, Square};
-use crate::Bitboard;
+use crate::engine::enums::{Castling, Color, Piece, Square};
+use crate::engine::movegen::MoveGen;
+use crate::engine::Bitboard;
 use num_traits::FromPrimitive;
 use std::collections::HashMap;
 use std::str::FromStr;
 
 pub struct Board {
     pub bitboards: HashMap<Piece, Bitboard>,
+    pub white: Bitboard,
+    pub black: Bitboard,
     pub active_color: Color,
     pub castling_rights: HashMap<Castling, bool>,
-    pub en_passant: Square,
+    pub en_passant: Result<Square, ()>,
     pub halfmove_clock: i32,
     pub fullmove_number: i32,
 }
@@ -25,12 +28,35 @@ impl Board {
         let bitboards = Self::fen_get_bitboards(fen_pieces[0].split("/").collect());
         let active_color = Self::fen_get_active_color(fen_pieces[1]).unwrap();
         let castling_rights = Self::fen_get_castling_rights(fen_pieces[2]);
-        let en_passant = Square::from_str(fen_pieces[3]).unwrap();
+        let en_passant = Square::from_str(fen_pieces[3]);
         let halfmove_clock: i32 = fen_pieces[4].parse().unwrap();
         let fullmove_number: i32 = fen_pieces[5].parse().unwrap();
 
+        let mut white = Bitboard::new(0);
+        let mut black = Bitboard::new(0);
+
+        for (piece, board) in bitboards.iter() {
+            match *piece {
+                Piece::WhiteKing
+                | Piece::WhiteQueen
+                | Piece::WhiteRook
+                | Piece::WhiteBishop
+                | Piece::WhiteKnight
+                | Piece::WhitePawn => white |= board,
+
+                Piece::BlackKing
+                | Piece::BlackQueen
+                | Piece::BlackRook
+                | Piece::BlackBishop
+                | Piece::BlackKnight
+                | Piece::BlackPawn => black |= board,
+            }
+        }
+
         Self {
             bitboards,
+            white,
+            black,
             active_color,
             castling_rights,
             en_passant,
@@ -125,5 +151,9 @@ impl Board {
         }
 
         return result;
+    }
+
+    pub fn move_gen(&self) {
+        MoveGen::gen_moves(self);
     }
 }
