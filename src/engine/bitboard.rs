@@ -1,8 +1,8 @@
-use std::fmt;
-use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign};
 use super::Square;
+use std::fmt;
+use std::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Shl, Shr};
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Bitboard(pub u64);
 
 impl Bitboard {
@@ -109,6 +109,22 @@ impl BitAndAssign<&Bitboard> for Bitboard {
     }
 }
 
+impl Shr<usize> for Bitboard {
+    type Output = Self;
+
+    fn shr(self, rhs: usize) -> Self::Output {
+        Self(self.0 >> rhs)
+    }
+}
+
+impl Shl<usize> for Bitboard {
+    type Output = Self;
+
+    fn shl(self, rhs: usize) -> Self::Output {
+        Self(self.0 << rhs)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::Bitboard;
@@ -142,7 +158,10 @@ mod tests {
         let a1 = Bitboard::from_square(Square::a1);
         let a2 = Bitboard::from_square(Square::a2);
 
-        assert_eq!((a1 | a2).0, Bitboard::from_squares(vec![Square::a1, Square::a2]).0);
+        assert_eq!(
+            a1 | a2,
+            Bitboard::from_squares(vec![Square::a1, Square::a2])
+        );
     }
 
     #[test]
@@ -151,7 +170,7 @@ mod tests {
         let mut a2 = Bitboard::from_square(Square::a2);
         a2 |= a1;
 
-        assert_eq!(a2.0, Bitboard::from_squares(vec![Square::a1, Square::a2]).0);
+        assert_eq!(a2, Bitboard::from_squares(vec![Square::a1, Square::a2]));
     }
 
     #[test]
@@ -159,7 +178,7 @@ mod tests {
         let board1 = Bitboard::from_square(Square::h8);
         let board2 = Bitboard::from_square(Square::h8);
 
-        assert_eq!((board1 | board2).0, Bitboard::from_square(Square::h8).0);
+        assert_eq!(board1 | board2, Bitboard::from_square(Square::h8));
     }
 
     #[test]
@@ -168,7 +187,7 @@ mod tests {
         let mut board2 = Bitboard::from_square(Square::d4);
         board2 |= board1;
 
-        assert_eq!(board2.0, Bitboard::from_square(Square::d4).0);
+        assert_eq!(board2, Bitboard::from_square(Square::d4));
     }
 
     #[test]
@@ -176,7 +195,7 @@ mod tests {
         let board1 = Bitboard::from_square(Square::a1);
         let board2 = Bitboard::from_square(Square::a1);
 
-        assert_eq!((board1 & board2).0, Bitboard::from_square(Square::a1).0);
+        assert_eq!(board1 & board2, Bitboard::from_square(Square::a1));
     }
 
     #[test]
@@ -184,7 +203,7 @@ mod tests {
         let board1 = Bitboard::from_square(Square::a8);
         let board2 = Bitboard::from_square(Square::e3);
 
-        assert_eq!((board1 & board2).0, Bitboard::new(0u64).0);
+        assert_eq!(board1 & board2, Bitboard::new(0u64));
     }
 
     #[test]
@@ -193,7 +212,7 @@ mod tests {
         let mut board2 = Bitboard::from_square(Square::c3);
         board2 &= board1;
 
-        assert_eq!(board2.0, Bitboard::from_square(Square::c3).0);
+        assert_eq!(board2, Bitboard::from_square(Square::c3));
     }
 
     #[test]
@@ -202,6 +221,38 @@ mod tests {
         let mut board2 = Bitboard::from_square(Square::b5);
         board2 &= board1;
 
-        assert_eq!(board2.0, Bitboard::new(0u64).0);
+        assert_eq!(board2, Bitboard::new(0u64));
+    }
+
+    #[test]
+    fn it_left_shifts_one_file() {
+        let mut board = Bitboard::from_square(Square::a1);
+        board = board << 1;
+
+        assert_eq!(board, Bitboard::from_square(Square::b1))
+    }
+
+    #[test]
+    fn it_left_shifts_to_next_row() {
+        let mut board = Bitboard::from_square(Square::c5);
+        board = board << 8;
+
+        assert_eq!(board, Bitboard::from_square(Square::c6))
+    }
+
+    #[test]
+    fn it_right_shifts_one_file() {
+        let mut board = Bitboard::from_square(Square::h8);
+        board = board >> 1;
+
+        assert_eq!(board, Bitboard::from_square(Square::g8))
+    }
+
+    #[test]
+    fn it_right_shifts_to_prev_row() {
+        let mut board = Bitboard::from_square(Square::e5);
+        board = board >> 8;
+
+        assert_eq!(board, Bitboard::from_square(Square::e4))
     }
 }
