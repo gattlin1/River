@@ -28,7 +28,7 @@ impl MoveGen {
                 Self::get_white_pawn_attacks(bitboard);
             }
             Color::Black => {
-                Self::get_black_pawn_attacks(bitboard);
+                //Self::get_black_pawn_attacks(bitboard);
             }
         };
 
@@ -36,19 +36,27 @@ impl MoveGen {
     }
 
     fn get_white_pawn_attacks(bitboard: Bitboard) -> Bitboard {
-        let mut attacks = Bitboard::new(0u64);
-        let mut poss_attacks = Bitboard::new(0u64);
-        poss_attacks |= bitboard << 7; // get right attacks
-        poss_attacks |= bitboard << 2; // get left attacks
+        let pawn_attacks = Self::get_white_pawn_east_attacks(bitboard)
+            | Self::get_white_pawn_west_attacks(bitboard);
 
-        attacks
+        pawn_attacks
     }
 
-    fn get_black_pawn_attacks(bitboard: Bitboard) -> Bitboard {
-        let mut attacks = Bitboard::new(0u64);
-        attacks |= bitboard >> 7; // get left attacks
-        attacks |= bitboard >> 2; // get right attacks
+    fn get_white_pawn_east_attacks(bitboard: Bitboard) -> Bitboard {
+        let mut east_attacks = bitboard << 9;
+        let no_a_file =
+            Bitboard::new(0b1111111011111110111111101111111011111110111111101111111011111110);
+        east_attacks &= no_a_file;
 
-        attacks
+        east_attacks
+    }
+
+    fn get_white_pawn_west_attacks(bitboard: Bitboard) -> Bitboard {
+        let mut west_attacks = bitboard << 7;
+        let no_h_file =
+            Bitboard::new(0b0111111101111111011111110111111101111111011111110111111101111111);
+        west_attacks &= no_h_file;
+
+        west_attacks
     }
 }
