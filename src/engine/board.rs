@@ -18,11 +18,11 @@ pub struct Board {
 
 impl Board {
     pub fn new() -> Self {
-        let starting_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1".into();
+        let starting_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
         Self::from_fen(starting_pos)
     }
 
-    pub fn from_fen(fen: String) -> Self {
+    pub fn from_fen(fen: &str) -> Self {
         let fen_pieces: Vec<&str> = fen.split_whitespace().collect();
 
         let bitboards = Self::fen_get_bitboards(fen_pieces[0].split("/").collect());
@@ -139,18 +139,22 @@ impl Board {
         match fen_color {
             "w" => Ok(Color::White),
             "b" => Ok(Color::Black),
-            _ => Err("Invalid color was supplied"),
+            _ => {
+                panic!("Unknown active color was supplied")
+            }
         }
     }
 
-    pub fn get_board_state(self) -> Bitboard {
-        let mut result: Bitboard = Bitboard::new(0);
+    pub fn get_board_state(self) {
+        println!("Color to Move: {:?}", self.active_color);
+        println!("Castling Rights: {:?}", self.castling_rights);
+        println!("En Passant Square: {:?}", self.en_passant);
+        println!("Half Move #: {}", self.halfmove_clock);
+        println!("Full Move #: {}", self.fullmove_number);
 
-        for (_, board) in self.bitboards {
-            result |= board;
+        for (piece, board) in self.bitboards.iter() {
+            println!("{:?}\n {}", piece, board);
         }
-
-        return result;
     }
 
     pub fn move_gen(&self) {

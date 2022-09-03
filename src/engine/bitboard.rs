@@ -30,26 +30,26 @@ impl Bitboard {
 
 impl fmt::Display for Bitboard {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut decimal: u64 = self.0;
-        let mut bits = String::new();
+        let mut board = String::from("+---+---+---+---+---+---+---+---+\n");
 
-        while decimal > 0 {
+        let mut square = 63;
+        for row in (1..9).rev() {
+            board.push_str(&row.to_string());
             for _ in 0..8 {
-                if decimal % 2 == 0 {
-                    bits.push('-');
+                if self.0 & (1u64 << square) == (1u64 << square) {
+                    board.push_str("| X ")
                 } else {
-                    bits.push('X');
+                    board.push_str("|   ")
                 }
-                decimal /= 2;
+                square -= 1;
             }
-            bits.push('\n');
+            board.push_str("|\n");
         }
 
-        while bits.len() < 64 {
-            bits.push_str("--------\n");
-        }
+        board.push_str(" +---+---+---+---+---+---+---+---+\n");
+        board.push_str("   A   B   C   D   E   F   G   H");
 
-        write!(f, "{}", bits)
+        write!(f, "{}", board)
     }
 }
 

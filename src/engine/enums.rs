@@ -132,28 +132,28 @@ impl FromStr for Square {
     }
 }
 
-// #[derive(Copy, Clone, Debug)]
-// #[repr(u8)]
-// pub enum Rank {
-//     One = 0,
-//     Two,
-//     Three,
-//     Four,
-//     Five,
-//     Six,
-//     Seven,
-//     Eight,
-// }
-//
-// #[derive(Copy, Clone, Debug)]
-// #[repr(u8)]
-// pub enum File {
-//     A = 0,
-//     B,
-//     C,
-//     D,
-//     E,
-//     F,
-//     G,
-//     H,
-// }
+#[derive(Copy, Clone, Debug)]
+#[repr(u8)]
+pub enum Rank {
+    One = 1,
+    Two,
+    Three,
+    Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+}
+
+#[derive(Copy, Clone, Debug)]
+#[repr(u8)]
+pub enum File {
+    A = 1,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
+    H,
+}
