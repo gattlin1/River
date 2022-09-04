@@ -1,8 +1,4 @@
-use super::enums::Piece;
-use super::Bitboard;
-use super::Board;
-use super::Color;
-
+use super::{Bitboard, Board, Color, Piece};
 pub struct MoveGen {}
 
 impl MoveGen {

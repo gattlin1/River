@@ -9,3 +9,6 @@ pub use self::movegen::*;
 
 mod enums;
 pub use self::enums::*;
+
+mod piece;
+pub use self::piece::*;

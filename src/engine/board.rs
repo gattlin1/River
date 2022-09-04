@@ -1,6 +1,4 @@
-use crate::engine::enums::{Castling, Color, Piece, Square};
-use crate::engine::movegen::MoveGen;
-use crate::engine::Bitboard;
+use super::{Bitboard, Castling, Color, MoveGen, Piece, Square};
 use num_traits::FromPrimitive;
 use std::collections::HashMap;
 use std::str::FromStr;
@@ -72,25 +70,18 @@ impl Board {
         let mut square: i8 = 63;
         for pieces in fen_pieces {
             for piece in pieces.chars() {
-                match piece {
-                    'k' => Self::add_to_piece_list(&mut piece_list, Piece::BlackKing, square),
-                    'q' => Self::add_to_piece_list(&mut piece_list, Piece::BlackQueen, square),
-                    'r' => Self::add_to_piece_list(&mut piece_list, Piece::BlackRook, square),
-                    'b' => Self::add_to_piece_list(&mut piece_list, Piece::BlackBishop, square),
-                    'n' => Self::add_to_piece_list(&mut piece_list, Piece::BlackKnight, square),
-                    'p' => Self::add_to_piece_list(&mut piece_list, Piece::BlackPawn, square),
-                    'K' => Self::add_to_piece_list(&mut piece_list, Piece::WhiteKing, square),
-                    'Q' => Self::add_to_piece_list(&mut piece_list, Piece::WhiteQueen, square),
-                    'R' => Self::add_to_piece_list(&mut piece_list, Piece::WhiteRook, square),
-                    'B' => Self::add_to_piece_list(&mut piece_list, Piece::WhiteBishop, square),
-                    'N' => Self::add_to_piece_list(&mut piece_list, Piece::WhiteKnight, square),
-                    'P' => Self::add_to_piece_list(&mut piece_list, Piece::WhitePawn, square),
-                    '1'..='8' => {
-                        let empty_squares = piece.to_digit(10).unwrap() as i8;
-                        square -= empty_squares - 1; // -1 because we subtract after the match statement
+                match Piece::from(piece) {
+                    Ok(piece) => Self::add_to_piece_list(&mut piece_list, piece, square),
+                    Err(non_piece) => {
+                        match non_piece {
+                            '1'..='8' => {
+                                let empty_squares = piece.to_digit(10).unwrap() as i8;
+                                square -= empty_squares - 1; // -1 because we subtract after the match statement
+                            }
+                            _ => {}
+                        }
                     }
-                    _ => {}
-                };
+                }
                 square -= 1;
             }
         }
@@ -161,20 +152,7 @@ impl Board {
                 let mut piece_rep = ' ';
                 for (piece, board) in self.bitboards.iter() {
                     if board.0 & (1u64 << square) == (1u64 << square) {
-                        piece_rep = match piece {
-                            Piece::WhiteKing => 'K',
-                            Piece::WhiteQueen => 'Q',
-                            Piece::WhiteRook => 'R',
-                            Piece::WhiteBishop => 'B',
-                            Piece::WhiteKnight => 'N',
-                            Piece::WhitePawn => 'P',
-                            Piece::BlackKing => 'k',
-                            Piece::BlackQueen => 'q',
-                            Piece::BlackRook => 'r',
-                            Piece::BlackBishop => 'b',
-                            Piece::BlackKnight => 'n',
-                            Piece::BlackPawn => 'p',
-                        };
+                        piece_rep = piece.to_char();
                         break;
                     }
                 }

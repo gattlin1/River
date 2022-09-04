@@ -2,23 +2,6 @@ use num_derive::FromPrimitive;
 use std::str::FromStr;
 
 #[derive(PartialEq, Eq, Hash, Debug)]
-
-pub enum Piece {
-    WhiteKing,
-    WhiteQueen,
-    WhiteRook,
-    WhiteBishop,
-    WhiteKnight,
-    WhitePawn,
-    BlackKing,
-    BlackQueen,
-    BlackRook,
-    BlackBishop,
-    BlackKnight,
-    BlackPawn,
-}
-
-#[derive(PartialEq, Eq, Hash, Debug)]
 pub enum Type {
     King,
     Queen,
