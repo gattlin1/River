@@ -152,9 +152,42 @@ impl Board {
         println!("Half Move #: {}", self.halfmove_clock);
         println!("Full Move #: {}", self.fullmove_number);
 
-        for (piece, board) in self.bitboards.iter() {
-            println!("{:?}\n {}", piece, board);
+        let mut board_rep = String::from(" +---+---+---+---+---+---+---+---+\n");
+
+        let mut square = 63;
+        for rank in (1..9).rev() {
+            board_rep.push_str(&rank.to_string());
+            for _ in 0..8 {
+                let mut piece_rep = ' ';
+                for (piece, board) in self.bitboards.iter() {
+                    if board.0 & (1u64 << square) == (1u64 << square) {
+                        piece_rep = match piece {
+                            Piece::WhiteKing => 'K',
+                            Piece::WhiteQueen => 'Q',
+                            Piece::WhiteRook => 'R',
+                            Piece::WhiteBishop => 'B',
+                            Piece::WhiteKnight => 'N',
+                            Piece::WhitePawn => 'P',
+                            Piece::BlackKing => 'k',
+                            Piece::BlackQueen => 'q',
+                            Piece::BlackRook => 'r',
+                            Piece::BlackBishop => 'b',
+                            Piece::BlackKnight => 'n',
+                            Piece::BlackPawn => 'p',
+                        };
+                        break;
+                    }
+                }
+                board_rep.push_str(&format!("| {} ", piece_rep.to_string()));
+                square -= 1;
+            }
+
+            board_rep.push_str("|\n +---+---+---+---+---+---+---+---+\n");
         }
+
+        board_rep.push_str("   A   B   C   D   E   F   G   H");
+
+        println!("{}", board_rep);
     }
 
     pub fn move_gen(&self) {

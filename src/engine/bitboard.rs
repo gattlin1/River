@@ -30,11 +30,11 @@ impl Bitboard {
 
 impl fmt::Display for Bitboard {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let mut board = String::from("+---+---+---+---+---+---+---+---+\n");
+        let mut board = String::from(" +---+---+---+---+---+---+---+---+\n");
 
         let mut square = 63;
-        for row in (1..9).rev() {
-            board.push_str(&row.to_string());
+        for rank in (1..9).rev() {
+            board.push_str(&rank.to_string());
             for _ in 0..8 {
                 if self.0 & (1u64 << square) == (1u64 << square) {
                     board.push_str("| X ")
@@ -43,10 +43,10 @@ impl fmt::Display for Bitboard {
                 }
                 square -= 1;
             }
-            board.push_str("|\n");
+
+            board.push_str("|\n +---+---+---+---+---+---+---+---+\n");
         }
 
-        board.push_str(" +---+---+---+---+---+---+---+---+\n");
         board.push_str("   A   B   C   D   E   F   G   H");
 
         write!(f, "{}", board)

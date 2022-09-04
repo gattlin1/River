@@ -2,6 +2,7 @@ use num_derive::FromPrimitive;
 use std::str::FromStr;
 
 #[derive(PartialEq, Eq, Hash, Debug)]
+
 pub enum Piece {
     WhiteKing,
     WhiteQueen,
