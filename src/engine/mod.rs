@@ -12,3 +12,6 @@ pub use self::enums::*;
 
 mod piece;
 pub use self::piece::*;
+
+mod square;
+pub use self::square::*;
