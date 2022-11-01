@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 #[rustfmt::skip]
 #[allow(non_camel_case_types)]
-#[derive(FromPrimitive, Debug)]
+#[derive(FromPrimitive, Debug, PartialEq)]
 #[repr(u8)]
 pub enum Square {
     a1 = 0, b1, c1, d1, e1, f1, g1, h1,
@@ -86,7 +86,6 @@ impl FromStr for Square {
             "h6" => Ok(Square::h6),
             "h7" => Ok(Square::h7),
             "h8" => Ok(Square::h8),
-            "-" => Ok(Square::None),
             _ => Err(()),
         }
     }

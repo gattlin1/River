@@ -127,8 +127,7 @@ impl Shl<usize> for Bitboard {
 
 #[cfg(test)]
 mod tests {
-    use super::Bitboard;
-    use crate::Square;
+    use super::*;
 
     #[test]
     fn it_creates_new_bitboard() {

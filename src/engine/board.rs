@@ -1,7 +1,6 @@
 use super::{Bitboard, Castling, Color, MoveGen, Piece, Square};
 use num_traits::FromPrimitive;
-use std::collections::HashMap;
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 pub struct Board {
     pub bitboards: HashMap<Piece, Bitboard>,
@@ -9,14 +8,14 @@ pub struct Board {
     pub black: Bitboard,
     pub active_color: Color,
     pub castling_rights: HashMap<Castling, bool>,
-    pub en_passant: Result<Square, ()>,
+    pub en_passant: Square,
     pub halfmove_clock: i32,
     pub fullmove_number: i32,
 }
 
 impl Board {
     pub fn new() -> Self {
-        let starting_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+        let starting_pos = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 0";
         Self::from_fen(starting_pos)
     }
 
@@ -26,7 +25,7 @@ impl Board {
         let bitboards = Self::fen_get_bitboards(fen_pieces[0].split("/").collect());
         let active_color = Self::fen_get_active_color(fen_pieces[1]).unwrap();
         let castling_rights = Self::fen_get_castling_rights(fen_pieces[2]);
-        let en_passant = Square::from_str(fen_pieces[3]);
+        let en_passant = Self::fen_get_en_passant(fen_pieces[3]);
         let halfmove_clock: i32 = fen_pieces[4].parse().unwrap();
         let fullmove_number: i32 = fen_pieces[5].parse().unwrap();
 
@@ -126,6 +125,17 @@ impl Board {
         castling_rights
     }
 
+    fn fen_get_en_passant(en_passant_square: &str) -> Square {
+        if en_passant_square == "-" {
+            return Square::None;
+        }
+
+        match Square::from_str(en_passant_square) {
+            Ok(square) => square,
+            _ => panic!("Unknown en passant square was supplied"),
+        }
+    }
+
     fn fen_get_active_color(fen_color: &str) -> Result<Color, &str> {
         match fen_color {
             "w" => Ok(Color::White),
@@ -170,5 +180,100 @@ impl Board {
 
     pub fn move_gen(&self) {
         MoveGen::gen_moves(self);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_creates_starting_position() {
+        let board = Board::new();
+
+        let mut castling_rights: HashMap<Castling, bool> = HashMap::new();
+        castling_rights.insert(Castling::WhiteKingSide, true);
+        castling_rights.insert(Castling::WhiteQueenSide, true);
+        castling_rights.insert(Castling::BlackKingSide, true);
+        castling_rights.insert(Castling::BlackQueenSide, true);
+
+        assert_eq!(
+            board.white,
+            Bitboard::from_squares(vec![
+                Square::a1,
+                Square::b1,
+                Square::c1,
+                Square::d1,
+                Square::e1,
+                Square::f1,
+                Square::g1,
+                Square::h1,
+                Square::a2,
+                Square::b2,
+                Square::c2,
+                Square::d2,
+                Square::e2,
+                Square::f2,
+                Square::g2,
+                Square::h2,
+            ])
+        );
+        assert_eq!(
+            board.black,
+            Bitboard::from_squares(vec![
+                Square::a8,
+                Square::b8,
+                Square::c8,
+                Square::d8,
+                Square::e8,
+                Square::f8,
+                Square::g8,
+                Square::h8,
+                Square::a7,
+                Square::b7,
+                Square::c7,
+                Square::d7,
+                Square::e7,
+                Square::f7,
+                Square::g7,
+                Square::h7,
+            ])
+        );
+        assert_eq!(board.active_color, Color::White);
+        assert_eq!(board.castling_rights, castling_rights);
+        assert_eq!(board.en_passant, Square::None);
+        assert_eq!(board.halfmove_clock, 0);
+        assert_eq!(board.fullmove_number, 0);
+    }
+
+    #[test]
+    fn it_parses_white_active_color() {
+        let white = Board::fen_get_active_color("w").unwrap();
+        let black = Board::fen_get_active_color("b").unwrap();
+
+        assert_eq!(white, Color::White);
+        assert_eq!(black, Color::Black);
+    }
+
+    #[test]
+    fn it_parses_en_passant_square() {
+        let no_en_passant = Board::fen_get_en_passant("-");
+        let g4_en_passant = Board::fen_get_en_passant("g4");
+
+        assert_eq!(no_en_passant, Square::None);
+        assert_eq!(g4_en_passant, Square::g4);
+    }
+
+    #[test]
+    fn it_parses_castling_rights() {
+        let castling_rights = Board::fen_get_castling_rights("KQkq");
+
+        let mut expected: HashMap<Castling, bool> = HashMap::new();
+        expected.insert(Castling::WhiteKingSide, true);
+        expected.insert(Castling::WhiteQueenSide, true);
+        expected.insert(Castling::BlackKingSide, true);
+        expected.insert(Castling::BlackQueenSide, true);
+
+        assert_eq!(castling_rights, expected)
     }
 }
